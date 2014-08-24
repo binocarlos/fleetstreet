@@ -1,5 +1,5 @@
 FROM progrium/busybox
-MAINTAINER Kai Davenport <kaiyadavenport@gmail.com
+MAINTAINER Kai Davenport <kaiyadavenport@gmail.com>
 
 ADD ./stage/fleetstreet /bin/fleetstreet
 
