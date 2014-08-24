@@ -2,10 +2,15 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
+	"net/url"
 	"os"
+
+	"github.com/cenkalti/backoff"
+	dockerapi "github.com/fsouza/go-dockerclient"
 )
+
+var hostIp = flag.String("ip", "", "IP for ports mapped to the host")
 
 func getopt(name, def string) string {
 	if env := os.Getenv(name); env != "" {
@@ -16,19 +21,76 @@ func getopt(name, def string) string {
 
 func assert(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("fleetstreet: ", err)
 	}
 }
 
-func init() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %v [etcd]\n\n", os.Args[0])
-		flag.PrintDefaults()
+func retry(fn func() error) error {
+	return backoff.Retry(fn, backoff.NewExponentialBackOff())
+}
+
+func mapdefault(m map[string]string, key, default_ string) string {
+	v, ok := m[key]
+	if !ok {
+		return default_
 	}
+	return v
+}
+
+type ServiceRegistry interface {
+	Register(job *Job) error
+	Deregister(job *Job) error
+}
+
+func NewServiceRegistry(uri *url.URL) ServiceRegistry {
+	factory := map[string]func(*url.URL) ServiceRegistry{
+		"consul": NewConsulRegistry,
+		"etcd":   NewEtcdRegistry,
+	}[uri.Scheme]
+	if factory == nil {
+		log.Fatal("unrecognized registry backend: ", uri.Scheme)
+	}
+	log.Println("fleetstreet: Using " + uri.Scheme + " registry backend at", uri)
+	return factory(uri)
 }
 
 func main() {
+
 	flag.Parse()
 
-	log.Println("fleetstreet publishing to")
+	if *hostIp != "" {
+		log.Println("fleetstreet: Forcing host IP to", *hostIp)
+	}
+
+	docker, err := dockerapi.NewClient(getopt("DOCKER_HOST", "unix:///var/run/docker.sock"))
+	assert(err)
+
+	uri, err := url.Parse(flag.Arg(0))
+	assert(err)
+	registry := NewServiceRegistry(uri)
+
+	bridge := &RegistryBridge{
+		docker:   docker,
+		registry: registry,
+		jobs: make(map[string][]*Job),
+	}
+
+	containers, err := docker.ListContainers(dockerapi.ListContainersOptions{})
+	assert(err)
+	for _, listing := range containers {
+		bridge.Add(listing.ID[:12])
+	}
+
+	events := make(chan *dockerapi.APIEvents)
+	assert(docker.AddEventListener(events))
+	log.Println("fleetstreet: Listening for Docker events...")
+	for msg := range events {
+		switch msg.Status {
+		case "start":
+			go bridge.Add(msg.ID)
+		case "die":
+			go bridge.Remove(msg.ID)
+		}
+	}
+	log.Fatal("fleetstreet: docker event loop closed")
 }
