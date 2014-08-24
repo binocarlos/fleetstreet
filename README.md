@@ -4,9 +4,9 @@ Publish all the containers
 
 ![streetsign](https://github.com/binocarlos/fleetstreet/raw/master/streetsign.jpg)
 
-Publish/remove docker container configs to etcd as they are started and stopped
+Publish/remove docker container configs to etcd/consul as they are started and stopped
 
-Totally stolen from the [registrator](https://github.com/progrium/registrator.git) codebase and modified to publish container details.
+Totally stolen from the [registrator](https://github.com/progrium/registrator.git) codebase and modified to publish container details not port mappings.
 
 ## install
 
