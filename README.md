@@ -66,7 +66,7 @@ If you start the container with an environment variable called `FLEETSTREET_NAME
 ```bash
 $ docker run -d \
   --name mytest \
-  -e FLEETSTREET_NAME=mytest
+  -e FLEETSTREET_NAME=mytest \
   binocarlos/bring-a-ping --timeout 100
 ```
 

@@ -1,9 +1,7 @@
 package main
 
 import (
-	//"net"
 	"net/url"
-	//"strconv"
 	"encoding/json"
 
 	"github.com/armon/consul-api"

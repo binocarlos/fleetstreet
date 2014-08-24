@@ -2,11 +2,7 @@ package main
 
 import (
 	"log"
-	//"fmt"
-	//"net"
 	"os"
-	//"path"
-	//"strconv"
 	"strings"
 	"sync"
 
@@ -67,11 +63,8 @@ func (b *RegistryBridge) Add(containerId string) {
 		return
 	}
 
-	log.Println("fleetstreet: make job")
 	job := NewJob(container)
-	log.Println("fleetstreet: made job")
 	err = retry(func() error {
-		log.Println("fleetstreet: register job")
 		return b.registry.Register(job)
 	})
 	if err != nil {
