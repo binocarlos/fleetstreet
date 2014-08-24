@@ -21,7 +21,10 @@ fleetstreet is best run as a docker container:
 Start the fleetstreet listener by passing in the docker socket and the etcd endpoint:
 
 ```bash
-$ docker run -d -v /var/run/docker.sock:/var/run/docker.sock --name fleetstreet binocarlos/fleetstreet etcd://192.168.8.120:4001/fleetstreet
+$ docker run -d \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --name fleetstreet \
+  binocarlos/fleetstreet etcd://192.168.8.120:4001/fleetstreet
 ```
 
 Now when containers are run on the docker host - its config is written to the etcd host & path provided.
