@@ -6,6 +6,8 @@ Publish all the containers
 
 Publish/remove docker container configs to etcd/consul as they are started and stopped
 
+Useful so other containers on the network can listen in realtime (via etcd/consul) for instructions embedded in a containers environment
+
 Totally stolen from the [registrator](https://github.com/progrium/registrator.git) codebase and modified to publish container details not port mappings.
 
 ## install
@@ -75,6 +77,11 @@ The data for this container would be written to:
 ```bash
 /fleetstreet/mytest
 ```
+
+## Thanks
+
+To [Jeff Lindsay](https://github.com/progrium) for [registrator](https://github.com/progrium/registrator)
+
 
 ## License
 
