@@ -58,10 +58,12 @@ func main() {
 
 	flag.Parse()
 
-	if *hostIp != "" {
-		log.Println("fleetstreet: Forcing host IP to", *hostIp)
+	if *hostIp == "" {
+		log.Fatalf("fleetstreet: --ip argument required")
 	}
 
+	log.Println("fleetstreet: host IP is", *hostIp)
+	
 	docker, err := dockerapi.NewClient(getopt("DOCKER_HOST", "unix:///var/run/docker.sock"))
 	assert(err)
 

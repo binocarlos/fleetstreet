@@ -4,6 +4,7 @@ import (
 	//"net"
 	"net/url"
 	//"strconv"
+	"encoding/json"
 
 	"github.com/armon/consul-api"
 )
@@ -25,7 +26,11 @@ func NewConsulRegistry(uri *url.URL) ServiceRegistry {
 
 func (r *ConsulRegistry) Register(job *Job) error {
 	path := r.path[1:] + "/" + job.ID
-	_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(job.Data)}, nil)
+	jsonBytes, jsonerr := json.Marshal(job)
+	if jsonerr != nil {
+		return jsonerr
+	}
+	_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: jsonBytes}, nil)
 	return err
 }
 

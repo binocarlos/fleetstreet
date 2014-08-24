@@ -4,6 +4,7 @@ import (
 	//"net"
 	"net/url"
 	//"strconv"
+	"encoding/json"
 
 	"github.com/coreos/go-etcd/etcd"
 )
@@ -23,7 +24,11 @@ func NewEtcdRegistry(uri *url.URL) ServiceRegistry {
 
 func (r *EtcdRegistry) Register(job *Job) error {
 	path := r.path + "/" + job.ID
-	_, err := r.client.Create(path, job.Data, 0)
+	jsonBytes, jsonerr := json.Marshal(job)
+	if jsonerr != nil {
+		return jsonerr
+	}
+	_, err := r.client.Set(path, string(jsonBytes), 0)
 	return err
 }
 
