@@ -25,12 +25,19 @@ func defaultJobName(container *dockerapi.Container) string {
 
 func jobName(container *dockerapi.Container) string {
 	name := defaultJobName(container)
+	hit := false
 	for _, kv := range container.Config.Env {
 		kvp := strings.SplitN(kv, "=", 2)
-		if kvp[0] == "FLEETSTREET_NAME" {
+		if kvp[0] == *varName {
 			name = kvp[1]
+			hit = true
 		}
 	}
+
+	if *requireVarName && !hit {
+		name = ""
+	}
+	
 	return name
 }
 
@@ -64,6 +71,10 @@ func (b *RegistryBridge) Add(containerId string) {
 	}
 
 	job := NewJob(container)
+	if(job.ID == "" ){
+		log.Println("fleetstreet: non-published container:", containerId)
+		return	
+	}
 	err = retry(func() error {
 		return b.registry.Register(job)
 	})

@@ -11,6 +11,8 @@ import (
 )
 
 var hostIp = flag.String("ip", "", "IP for ports mapped to the host")
+var varName = flag.String("var", "FLEETSTREET_NAME", "The name of the env variable that sets the container name")
+var requireVarName = flag.Bool("ensure", false, "Require that the env variable be set to publish the container")
 
 func getopt(name, def string) string {
 	if env := os.Getenv(name); env != "" {

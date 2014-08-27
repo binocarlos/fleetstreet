@@ -20,10 +20,14 @@ You can also just grab the binary from the stage/ folder
 
 ## usage
 
-Start fleetstreet container passing the --ip argument and the etcd or consul endpoint.
+Start fleetstreet container passing the following arguments and the etcd or consul endpoint.
+
+ * -ip - the IP address of the docker host
+ * -var - the name of the environment variable that is the container name (FLEETSTREET_NAME)
+ * -ensure - ensure that the environment variable is set before publishing (false)
 
 ```bash
-$ fleetstreet -ip=x.x.x.x <registry-uri>
+$ fleetstreet -ip=x.x.x.x -var=FLEETSTREET_NAME -ensure <registry-uri>
 ```
 The registry-uri indicates if you are using etcd or consul.
 
